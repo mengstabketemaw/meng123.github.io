@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey… One Question</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans for modern dating app feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        coral: {
+                            50: '#fff5f3',
+                            100: '#ffe3de',
+                            200: '#ffccc4',
+                            400: '#ff7e67',
+                            500: '#ff5a3d',
+                            600: '#f03e1e',
+                        },
+                        blush: {
+                            50: '#fff1f4',
+                            100: '#ffe4e9',
+                            500: '#ff5c8a',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 8s ease-in-out infinite',
+                        'float-delayed': 'float 7s ease-in-out 3s infinite',
+                        'pulse-gentle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(3deg)' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fff1f4 0%, #fff5f3 50%, #fef3c7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 126, 103, 0.2);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between text-slate-800 relative selection:bg-coral-100 selection:text-coral-600">
+
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <span class="absolute text-3xl sm:text-5xl animate-float-slow top-[10%] left-[8%] opacity-70">✨</span>
+        <span class="absolute text-3xl sm:text-5xl animate-float-delayed top-[20%] right-[10%] opacity-70">💛</span>
+        <span class="absolute text-3xl sm:text-5xl animate-float-slow bottom-[15%] left-[12%] opacity-70">🌸</span>
+        <span class="absolute text-3xl sm:text-5xl animate-float-delayed bottom-[25%] right-[15%] opacity-70">💫</span>
+        <span class="absolute text-2xl sm:text-4xl animate-float-slow top-[50%] left-[5%] opacity-60">💬</span>
+        <span class="absolute text-2xl sm:text-4xl animate-float-delayed top-[45%] right-[7%] opacity-60">💖</span>
+    </div>
+
+    <!-- SECRET BACKDOOR TRIGGER: Invisible tap area in top-right corner for the owner -->
+    <div onclick="handleSecretTap()" class="absolute top-0 right-0 w-16 h-16 z-50 cursor-pointer flex items-center justify-center opacity-0 hover:opacity-10 transition-opacity" title="Owner Access">
+        <span class="text-xs">🔒</span>
+    </div>
+
+    <!-- Main Container -->
+    <main class="relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 max-w-md mx-auto w-full">
+
+        <div id="screen-landing" class="w-full flex flex-col items-center text-center space-y-8 animate-fadeIn">
+            <div class="space-y-3">
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-coral-100 text-coral-600 shadow-sm animate-pulse-gentle">
+                    Interactive Experience 🥂
+                </span>
+                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+                    Hey… <span class="bg-gradient-to-r from-coral-500 to-blush-500 bg-clip-text text-transparent">One Question</span>
+                </h1>
+                <p class="text-slate-600 text-base sm:text-lg max-w-xs mx-auto font-medium">
+                    A playful little icebreaker made just for you. Ready to find out what it is? 😉
+                </p>
+            </div>
+
+            <!-- Main Choice -->
+            <div class="w-full space-y-4 pt-4">
+                <button onclick="startQuestionnaire()" class="w-full group relative overflow-hidden p-5 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-xl shadow-coral-500/25 hover:shadow-coral-500/40 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-3">
+                    <span class="text-xl">✨</span>
+                    <span>Start the game</span>
+                    <span class="group-hover:translate-x-1 transition-transform">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-questionnaire" class="hidden w-full flex-col items-center justify-between min-h-[460px] animate-fadeIn">
+            <!-- Top Progress Bar -->
+            <div class="w-full flex items-center justify-between mb-6 px-1">
+                <button onclick="exitToLanding()" class="w-9 h-9 rounded-full bg-white/80 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors">
+                    ✕
+                </button>
+                <div class="flex-1 mx-4 h-2 bg-slate-200/80 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-coral-500 to-blush-500 transition-all duration-500 rounded-full" style="width: 20%;"></div>
+                </div>
+                <span id="step-indicator" class="text-xs font-bold text-slate-400">1/5</span>
+            </div>
+
+            <!-- Question Card Container -->
+            <div id="question-card" class="w-full glass-card p-6 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 flex flex-col items-center text-center my-auto transition-all duration-300 transform">
+                <!-- Dynamic Content -->
+            </div>
+
+            <!-- Bottom Hint -->
+            <div class="mt-6 text-center">
+                <p id="question-hint" class="text-xs sm:text-sm text-slate-400 font-medium italic">
+                    <!-- Hint text -->
+                </p>
+            </div>
+        </div>
+
+        <div id="screen-exit" class="hidden w-full flex-col items-center text-center space-y-6 my-auto animate-fadeIn">
+            <div class="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center text-4xl shadow-inner mb-2 animate-bounce-subtle">
+                📱
+            </div>
+            <div class="space-y-3">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Boundary Respected</h2>
+                <p id="exit-message" class="text-slate-600 text-base leading-relaxed px-2 font-medium">
+                    No worries at all! Thanks for being honest. Please kindly return the phone back now. Have a beautiful day! 💛
+                </p>
+            </div>
+            <div class="pt-6 w-full">
+                <button onclick="exitToLanding()" class="w-full p-4 rounded-2xl bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 transition-all">
+                    Back to Start ✨
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-success" class="hidden w-full flex-col items-center text-center space-y-6 my-auto animate-fadeIn">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-coral-100 to-blush-100 flex items-center justify-center text-5xl shadow-md mb-2 animate-bounce-subtle">
+                💌
+            </div>
+            <div class="space-y-3">
+                <h2 id="success-title" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Got it, gorgeous! 😉</h2>
+                <p id="success-message" class="text-slate-600 text-base leading-relaxed px-2 font-medium">
+                    Please return the phone right back to me so I can text you immediately and tell you all about myself! 📱✨
+                </p>
+            </div>
+            <div class="pt-6 w-full space-y-3">
+                <button onclick="exitToLanding()" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-base shadow-lg shadow-coral-500/25 hover:shadow-coral-500/40 transition-all">
+                    Done 💫
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-bucket" class="hidden w-full flex-col items-center justify-between min-h-[520px] animate-fadeIn">
+            <!-- Header -->
+            <div class="w-full flex items-center justify-between mb-4">
+                <button onclick="exitToLanding()" class="px-3 py-1.5 rounded-xl bg-white/80 shadow-sm text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center space-x-1">
+                    <span>← Exit</span>
+                </button>
+                <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                    <span>🔒</span>
+                    <span>Owner Portal</span>
+                </h2>
+                <span id="bucket-count-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-coral-100 text-coral-600">0 matches</span>
+            </div>
+
+            <!-- Content Box -->
+            <div class="w-full flex-1 glass-card rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col overflow-hidden mb-4">
+                <div id="bucket-list-container" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                    <!-- Entries injected here -->
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="w-full flex gap-3">
+                <button onclick="confirmClearBucket()" class="flex-1 p-3.5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 font-bold text-sm hover:bg-rose-100 transition-colors flex items-center justify-center space-x-2">
+                    <span>🗑️</span>
+                    <span>Empty bucket</span>
+                </button>
+                <button onclick="exportBucketData()" class="flex-1 p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center space-x-2">
+                    <span>📥</span>
+                    <span>Export JSON</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 py-4 text-center text-xs text-slate-400 font-medium">
+        Made with 💛 for playful chemistry <span class="opacity-30">| (Tip: Tap the top-right corner 3 times for owner bucket)</span>
+    </footer>
+
+    <script>
+        const StorageManager = {
+            storageKey: 'fishBucket',
+            fallbackMemory: [],
+            isAvailable() {
+                try {
+                    const test = '__storage_test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            },
+            getEntries() {
+                if (this.isAvailable()) {
+                    try {
+                        const data = localStorage.getItem(this.storageKey);
+                        return data ? JSON.parse(data) : [];
+                    } catch (err) {
+                        return this.fallbackMemory;
+                    }
+                } else {
+                    return this.fallbackMemory;
+                }
+            },
+            saveEntry(entry) {
+                const entries = this.getEntries();
+                entries.unshift(entry);
+                if (this.isAvailable()) {
+                    try {
+                        localStorage.setItem(this.storageKey, JSON.stringify(entries));
+                    } catch (err) {
+                        this.fallbackMemory = entries;
+                    }
+                } else {
+                    this.fallbackMemory = entries;
+                }
+            },
+            clear() {
+                if (this.isAvailable()) {
+                    try {
+                        localStorage.removeItem(this.storageKey);
+                    } catch (err) {}
+                }
+                this.fallbackMemory = [];
+            }
+        };
+
+        let currentStep = 1;
+        let userData = {
+            firstName: '',
+            phoneNumber: '',
+            timestamp: ''
+        };
+
+        let secretTapCount = 0;
+        let secretTapTimer = null;
+
+        function handleSecretTap() {
+            secretTapCount++;
+            if (secretTapCount >= 3) {
+                secretTapCount = 0;
+                openBucket();
+            }
+            clearTimeout(secretTapTimer);
+            secretTapTimer = setTimeout(() => {
+                secretTapCount = 0;
+            }, 2000);
+        }
+
+        function showScreen(screenId) {
+            const screens = ['screen-landing', 'screen-questionnaire', 'screen-exit', 'screen-success', 'screen-bucket'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
+        }
+
+        function exitToLanding() {
+            currentStep = 1;
+            userData = { firstName: '', phoneNumber: '', timestamp: '' };
+            showScreen('screen-landing');
+        }
+
+        function startQuestionnaire() {
+            currentStep = 1;
+            userData = { firstName: '', phoneNumber: '', timestamp: '' };
+            showScreen('screen-questionnaire');
+            renderStep();
+        }
+
+        function updateProgress(step) {
+            const percent = (step / 5) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('step-indicator').textContent = `${step}/5`;
+        }
+
+        function renderStep() {
+            updateProgress(currentStep);
+            const card = document.getElementById('question-card');
+            const hint = document.getElementById('question-hint');
+
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            switch (currentStep) {
+                case 1:
+                    card.innerHTML = `
+                        <div class="text-4xl mb-4">👋</div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Hey… can I ask you a question?</h3>
+                        <div class="w-full space-y-3">
+                            <button onclick="handleStep1(true)" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-lg shadow-coral-500/20 hover:shadow-coral-500/30 transition-all">
+                                Yes, sure! 😊
+                            </button>
+                            <button onclick="handleStep1(false)" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 text-slate-700 font-bold text-base hover:bg-white transition-all">
+                                Not really 😅
+                            </button>
+                        </div>
+                    `;
+                    hint.textContent = "There's only one right answer here (kidding... mostly 😉)";
+                    break;
+
+                case 2:
+                    card.innerHTML = `
+                        <div class="text-4xl mb-4">💖</div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Okay, you seem really cute. So I have to know… are you single?</h3>
+                        <div class="w-full space-y-3">
+                            <button onclick="handleStep2(true)" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-lg shadow-coral-500/20 hover:shadow-coral-500/30 transition-all">
+                                Very single! 💖
+                            </button>
+                            <button onclick="handleStep2(false)" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 text-slate-700 font-bold text-base hover:bg-white transition-all">
+                                Taken / It's complicated 🙈
+                            </button>
+                        </div>
+                    `;
+                    hint.textContent = "Honesty is our favorite love language ✨";
+                    break;
+
+                case 3:
+                    card.innerHTML = `
+                        <div class="text-4xl mb-4">🌸</div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">What's your gorgeous first name?</h3>
+                        <p class="text-sm text-slate-500 mb-6">Let's make this official.</p>
+                        <form onsubmit="handleStep3(event)" class="w-full space-y-4">
+                            <input type="text" id="input-firstname" required placeholder="Enter your first name..." 
+                                class="w-full px-5 py-4 rounded-2xl bg-white/90 border border-slate-200 focus:border-coral-500 focus:ring-2 focus:ring-coral-500/20 outline-none text-center text-lg font-bold text-slate-800 placeholder-slate-400 shadow-sm"
+                                autocomplete="given-name" autofocus>
+                            <button type="submit" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-lg shadow-coral-500/20 hover:shadow-coral-500/30 transition-all flex items-center justify-center space-x-2">
+                                <span>Continue</span>
+                                <span>🚀</span>
+                            </button>
+                        </form>
+                    `;
+                    hint.textContent = "Nice to meet you in advance!";
+                    setTimeout(() => {
+                        const el = document.getElementById('input-firstname');
+                        if (el) el.focus();
+                    }, 100);
+                    break;
+
+                case 4:
+                    card.innerHTML = `
+                        <div class="text-4xl mb-4">✨</div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">I think you're super cute and would love to know you more. Is that okay?</h3>
+                        <div class="w-full space-y-3">
+                            <button onclick="handleStep4(true)" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-lg shadow-coral-500/20 hover:shadow-coral-500/30 transition-all">
+                                I'd love that! 🥰
+                            </button>
+                            <button onclick="handleStep4(false)" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 text-slate-700 font-bold text-base hover:bg-white transition-all">
+                                No thanks 🙅‍♀️
+                            </button>
+                        </div>
+                    `;
+                    hint.textContent = "Only good vibes and nice conversations guaranteed 💫";
+                    break;
+
+                case 5:
+                    card.innerHTML = `
+                        <div class="text-4xl mb-4">📲</div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">Drop your number below</h3>
+                        <p class="text-sm text-slate-500 mb-6">Where should I send a sweet message?</p>
+                        <form onsubmit="handleStep5(event)" class="w-full space-y-4">
+                            <input type="tel" id="input-phone" required placeholder="(555) 000-0000" 
+                                class="w-full px-5 py-4 rounded-2xl bg-white/90 border border-slate-200 focus:border-coral-500 focus:ring-2 focus:ring-coral-500/20 outline-none text-center text-lg font-bold text-slate-800 placeholder-slate-400 shadow-sm"
+                                autocomplete="tel" autofocus>
+                            <button type="submit" class="w-full p-4 rounded-2xl bg-gradient-to-r from-coral-500 to-blush-500 text-white font-bold text-lg shadow-lg shadow-coral-500/20 hover:shadow-coral-500/30 transition-all flex items-center justify-center space-x-2">
+                                <span>Send Number</span>
+                                <span>🎯</span>
+                            </button>
+                        </form>
+                    `;
+                    hint.textContent = "Your number is safe and only stored for this match!";
+                    setTimeout(() => {
+                        const el = document.getElementById('input-phone');
+                        if (el) el.focus();
+                    }, 100);
+                    break;
+            }
+        }
+
+        function handleStep1(isYes) {
+            if (!isYes) {
+                document.getElementById('exit-message').textContent = "No worries at all! Thanks for being honest. Please kindly return the phone back now. Have a beautiful day! 💛";
+                showScreen('screen-exit');
+            } else {
+                currentStep = 2;
+                renderStep();
+            }
+        }
+
+        function handleStep2(isSingle) {
+            if (!isSingle) {
+                document.getElementById('exit-message').textContent = "Hey, honesty is great! No pressure at all. Please return the phone back now. Have a wonderful day! ✨";
+                showScreen('screen-exit');
+            } else {
+                currentStep = 3;
+                renderStep();
+            }
+        }
+
+        function handleStep3(e) {
+            e.preventDefault();
+            const val = document.getElementById('input-firstname').value.trim();
+            if (!val) return;
+            userData.firstName = val;
+            currentStep = 4;
+            renderStep();
+        }
+
+        function handleStep4(isWilling) {
+            if (!isWilling) {
+                document.getElementById('exit-message').textContent = `Totally respect that, ${userData.firstName || 'there'}! No worries at all. Please return the phone back now. Have a great day! 😊`;
+                showScreen('screen-exit');
+            } else {
+                currentStep = 5;
+                renderStep();
+            }
+        }
+
+        function handleStep5(e) {
+            e.preventDefault();
+            const phoneVal = document.getElementById('input-phone').value.trim();
+            if (!phoneVal) return;
+            
+            userData.phoneNumber = phoneVal;
+            userData.timestamp = new Date().toLocaleString();
+
+            StorageManager.saveEntry(userData);
+
+            document.getElementById('success-title').textContent = `${userData.firstName}, all set! 😉`;
+            document.getElementById('success-message').innerHTML = `Please return the phone right back to me so I can text you immediately and tell you all about myself! 💌`;
+
+            showScreen('screen-success');
+            triggerCelebration();
+        }
+
+        function triggerCelebration() {
+            try {
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#ff5a3d', '#ff5c8a', '#ffd700', '#ff9a8b']
+                    });
+                }
+            } catch (err) {
+                console.log("Confetti animation fallback");
+            }
+        }
+
+        function openBucket() {
+            showScreen('screen-bucket');
+            renderBucketEntries();
+        }
+
+        function renderBucketEntries() {
+            const container = document.getElementById('bucket-list-container');
+            const entries = StorageManager.getEntries();
+            const badge = document.getElementById('bucket-count-badge');
+
+            badge.textContent = `${entries.length} ${entries.length === 1 ? 'match' : 'matches'}`;
+
+            if (entries.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center p-6 my-auto">
+                        <div class="text-4xl mb-3 animate-bounce-subtle">🪣</div>
+                        <h4 class="font-bold text-slate-800 text-base mb-1">No numbers collected yet...</h4>
+                        <p class="text-xs text-slate-400 max-w-xs">Share the game and check back here when she submits!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            entries.forEach((entry) => {
+                html += `
+                    <div class="p-4 rounded-2xl bg-white/90 border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div class="space-y-1 text-left">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-bold text-slate-900 text-base">${escapeHtml(entry.firstName)}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-bold">Single ✨</span>
+                            </div>
+                            <div class="text-sm font-semibold text-coral-600 tracking-wide">${escapeHtml(entry.phoneNumber)}</div>
+                            <div class="text-[11px] text-slate-400">${escapeHtml(entry.timestamp)}</div>
+                        </div>
+                        <div class="text-2xl pl-2">
+                            💌
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function confirmClearBucket() {
+            if (window.confirm("Are you sure you want to clear the list?")) {
+                StorageManager.clear();
+                renderBucketEntries();
+            }
+        }
+
+        function exportBucketData() {
+            const entries = StorageManager.getEntries();
+            if (entries.length === 0) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "match_entries.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        window.startQuestionnaire = startQuestionnaire;
+        window.openBucket = openBucket;
+        window.exitToLanding = exitToLanding;
+        window.handleStep1 = handleStep1;
+        window.handleStep2 = handleStep2;
+        window.handleStep3 = handleStep3;
+        window.handleStep4 = handleStep4;
+        window.handleStep5 = handleStep5;
+        window.confirmClearBucket = confirmClearBucket;
+        window.exportBucketData = exportBucketData;
+        window.handleSecretTap = handleSecretTap;
+    </script>
+</body>
+</html>
